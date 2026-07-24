@@ -1,4 +1,5 @@
-venv/
+# Python
+.venv/
 __pycache__/
 *.pyc
 .vscode/
@@ -7,8 +8,19 @@ __pycache__/
 
 # Unreal
 Binaries/
+Build/
+DerivedDataCache/
 Intermediate/
 Saved/
-DerivedDataCache/
 .vs/
-*.sln  
+
+# Visual Studio
+*.sln
+*.VC.db
+*.VC.opendb
+
+# Rider
+.idea/
+
+# Generated project files
+*.xcodeproj
