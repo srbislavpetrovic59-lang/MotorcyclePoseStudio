@@ -2,6 +2,9 @@
 
 #include "WebSocketsModule.h"
 #include "Modules/ModuleManager.h"
+#include "Dom/JsonObject.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
 
 
 UPoseWebSocketComponent::UPoseWebSocketComponent()
@@ -85,10 +88,22 @@ void UPoseWebSocketComponent::HandleClosed(
     bool bWasClean
 )
 {
+    if (StatusCode == 1000)
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("Pose WebSocket closed normally.")
+        );
+        return;
+    }
+
     UE_LOG(
         LogTemp,
         Warning,
-        TEXT("Pose WebSocket closed. Code: %d, Reason: %s"),
+        TEXT(
+            "Pose WebSocket closed. Code: %d, Reason: %s"
+        ),
         StatusCode,
         *Reason
     );
@@ -105,8 +120,97 @@ void UPoseWebSocketComponent::HandleMessage(
         TEXT("Pose WebSocket received: %s"),
         *Message
     );
-}
 
+    TSharedPtr<FJsonObject> JsonObject;
+
+    TSharedRef<TJsonReader<>> Reader =
+        TJsonReaderFactory<>::Create(Message);
+
+    if (!FJsonSerializer::Deserialize(Reader, JsonObject) ||
+        !JsonObject.IsValid())
+    {
+        UE_LOG(
+            LogTemp,
+            Warning,
+            TEXT("Invalid JSON received.")
+        );
+        return;
+    }
+
+    double LeftElbow = 0.0;
+    double RightElbow = 0.0;
+    float LeftKnee = 0.0f;
+    float RightKnee = 0.0f;
+    float TorsoAngle = 0.0f;
+    float PoseConfidence = 0.0f ;
+
+    if (JsonObject->TryGetNumberField(
+        TEXT("left_elbow"),
+        LeftElbow))
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("Left elbow = %.1f"),
+            LeftElbow
+        );
+    }
+    if (JsonObject->TryGetNumberField(
+        TEXT("right_elbow"),
+        LeftElbow))
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("Right elbow = %.1f"),
+            RightElbow
+        );
+    }
+    if (JsonObject->TryGetNumberField(
+        TEXT("left_knee"),
+        LeftKnee))
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("Left knee = %.1f"),
+            LeftKnee
+        );
+    }
+    if (JsonObject->TryGetNumberField(
+        TEXT("right_knee"),
+        RightKnee))
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("Right knee = %.1f"),
+            RightKnee
+        );
+    }
+    if (JsonObject->TryGetNumberField(
+        TEXT("torso_angle"),
+        TorsoAngle))
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("Torso angle = %.1f"),
+            TorsoAngle
+        );
+    }
+    if (JsonObject->TryGetNumberField(
+        TEXT("pose_confidence"),
+        PoseConfidence))
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("Pose confidence = %.1f"),
+            PoseConfidence
+        );
+    }
+}
 
 void UPoseWebSocketComponent::TickComponent(
     float DeltaTime,
