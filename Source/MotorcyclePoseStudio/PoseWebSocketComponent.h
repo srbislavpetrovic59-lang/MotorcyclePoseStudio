@@ -1,28 +1,40 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "IWebSocket.h"
 #include "PoseWebSocketComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MOTORCYCLEPOSESTUDIO_API UPoseWebSocketComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UPoseWebSocketComponent();
+public:
+    UPoseWebSocketComponent();
 
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+public:
+    virtual void TickComponent(
+        float DeltaTime,
+        ELevelTick TickType,
+        FActorComponentTickFunction* ThisTickFunction
+    ) override;
 
-		
+private:
+    TSharedPtr<IWebSocket> WebSocket;
+
+    void Connect();
+
+    void HandleConnected();
+    void HandleConnectionError(const FString& Error);
+    void HandleClosed(
+        int32 StatusCode,
+        const FString& Reason,
+        bool bWasClean
+    );
+    void HandleMessage(const FString& Message);
 };
