@@ -114,102 +114,32 @@ void UPoseWebSocketComponent::HandleMessage(
     const FString& Message
 )
 {
-    UE_LOG(
-        LogTemp,
-        Display,
-        TEXT("Pose WebSocket received: %s"),
-        *Message
-    );
+    FRiderState RiderState;
 
-    TSharedPtr<FJsonObject> JsonObject;
-
-    TSharedRef<TJsonReader<>> Reader =
-        TJsonReaderFactory<>::Create(Message);
-
-    if (!FJsonSerializer::Deserialize(Reader, JsonObject) ||
-        !JsonObject.IsValid())
+    if (!ParseRiderState(Message, RiderState))
     {
         UE_LOG(
             LogTemp,
             Warning,
-            TEXT("Invalid JSON received.")
+            TEXT("Pose WebSocket received invalid RiderState JSON.")
         );
         return;
     }
 
-    double LeftElbow = 0.0;
-    double RightElbow = 0.0;
-    float LeftKnee = 0.0f;
-    float RightKnee = 0.0f;
-    float TorsoAngle = 0.0f;
-    float PoseConfidence = 0.0f ;
-
-    if (JsonObject->TryGetNumberField(
-        TEXT("left_elbow"),
-        LeftElbow))
-    {
-        UE_LOG(
-            LogTemp,
-            Display,
-            TEXT("Left elbow = %.1f"),
-            LeftElbow
-        );
-    }
-    if (JsonObject->TryGetNumberField(
-        TEXT("right_elbow"),
-        LeftElbow))
-    {
-        UE_LOG(
-            LogTemp,
-            Display,
-            TEXT("Right elbow = %.1f"),
-            RightElbow
-        );
-    }
-    if (JsonObject->TryGetNumberField(
-        TEXT("left_knee"),
-        LeftKnee))
-    {
-        UE_LOG(
-            LogTemp,
-            Display,
-            TEXT("Left knee = %.1f"),
-            LeftKnee
-        );
-    }
-    if (JsonObject->TryGetNumberField(
-        TEXT("right_knee"),
-        RightKnee))
-    {
-        UE_LOG(
-            LogTemp,
-            Display,
-            TEXT("Right knee = %.1f"),
-            RightKnee
-        );
-    }
-    if (JsonObject->TryGetNumberField(
-        TEXT("torso_angle"),
-        TorsoAngle))
-    {
-        UE_LOG(
-            LogTemp,
-            Display,
-            TEXT("Torso angle = %.1f"),
-            TorsoAngle
-        );
-    }
-    if (JsonObject->TryGetNumberField(
-        TEXT("pose_confidence"),
-        PoseConfidence))
-    {
-        UE_LOG(
-            LogTemp,
-            Display,
-            TEXT("Pose confidence = %.1f"),
-            PoseConfidence
-        );
-    }
+    UE_LOG(
+        LogTemp,
+        Display,
+        TEXT(
+            "RiderState: elbows %.1f / %.1f, "
+            "knees %.1f / %.1f, torso %.1f, confidence %.2f"
+        ),
+        RiderState.LeftElbow,
+        RiderState.RightElbow,
+        RiderState.LeftKnee,
+        RiderState.RightKnee,
+        RiderState.TorsoAngle,
+        RiderState.PoseConfidence
+    );
 }
 
 void UPoseWebSocketComponent::TickComponent(
@@ -223,4 +153,61 @@ void UPoseWebSocketComponent::TickComponent(
         TickType,
         ThisTickFunction
     );
+}
+
+bool UPoseWebSocketComponent::ParseRiderState(
+    const FString& Message,
+    FRiderState& OutRiderState
+) const
+{
+    TSharedPtr<FJsonObject> JsonObject;
+
+    const TSharedRef<TJsonReader<>> Reader =
+        TJsonReaderFactory<>::Create(Message);
+
+    if (!FJsonSerializer::Deserialize(Reader, JsonObject) ||
+        !JsonObject.IsValid())
+    {
+        return false;
+    }
+
+    double Value = 0.0;
+
+    if (!JsonObject->TryGetNumberField(TEXT("left_elbow"), Value))
+    {
+        return false;
+    }
+    OutRiderState.LeftElbow = static_cast<float>(Value);
+
+    if (!JsonObject->TryGetNumberField(TEXT("right_elbow"), Value))
+    {
+        return false;
+    }
+    OutRiderState.RightElbow = static_cast<float>(Value);
+
+    if (!JsonObject->TryGetNumberField(TEXT("left_knee"), Value))
+    {
+        return false;
+    }
+    OutRiderState.LeftKnee = static_cast<float>(Value);
+
+    if (!JsonObject->TryGetNumberField(TEXT("right_knee"), Value))
+    {
+        return false;
+    }
+    OutRiderState.RightKnee = static_cast<float>(Value);
+
+    if (!JsonObject->TryGetNumberField(TEXT("torso_angle"), Value))
+    {
+        return false;
+    }
+    OutRiderState.TorsoAngle = static_cast<float>(Value);
+
+    if (!JsonObject->TryGetNumberField(TEXT("pose_confidence"), Value))
+    {
+        return false;
+    }
+    OutRiderState.PoseConfidence = static_cast<float>(Value);
+
+    return true;
 }

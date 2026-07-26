@@ -5,6 +5,18 @@
 #include "IWebSocket.h"
 #include "PoseWebSocketComponent.generated.h"
 
+USTRUCT()
+struct FRiderState
+{
+    GENERATED_BODY()
+
+    float LeftElbow = 0.0f;
+    float RightElbow = 0.0f;
+    float LeftKnee = 0.0f;
+    float RightKnee = 0.0f;
+    float TorsoAngle = 0.0f;
+    float PoseConfidence = 0.0f;
+};
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MOTORCYCLEPOSESTUDIO_API UPoseWebSocketComponent : public UActorComponent
@@ -37,4 +49,8 @@ private:
         bool bWasClean
     );
     void HandleMessage(const FString& Message);
+    bool ParseRiderState(
+        const FString& Message,
+        FRiderState& OutRiderState
+    ) const;
 };
