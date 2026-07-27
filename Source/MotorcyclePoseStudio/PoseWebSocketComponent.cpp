@@ -131,12 +131,16 @@ void UPoseWebSocketComponent::HandleMessage(
         Display,
         TEXT(
             "RiderState: elbows %.1f / %.1f, "
-            "knees %.1f / %.1f, torso %.1f, confidence %.2f"
+            "knees %.1f / %.1f, "
+            "feet %.1f / %.1f, "
+            "torso %.1f, confidence %.2f"
         ),
         RiderState.LeftElbow,
         RiderState.RightElbow,
         RiderState.LeftKnee,
         RiderState.RightKnee,
+        RiderState.LeftFoot,
+		RiderState.RightFoot,
         RiderState.TorsoAngle,
         RiderState.PoseConfidence
     );
@@ -173,35 +177,42 @@ bool UPoseWebSocketComponent::ParseRiderState(
 
     double Value = 0.0;
 
-    if (!JsonObject->TryGetNumberField(TEXT("left_elbow"), Value))
+    if (!JsonObject->TryGetNumberField(TEXT("left_elbow_angle"), Value))
     {
         return false;
     }
     OutRiderState.LeftElbow = static_cast<float>(Value);
 
-    if (!JsonObject->TryGetNumberField(TEXT("right_elbow"), Value))
+    if (!JsonObject->TryGetNumberField(TEXT("right_elbow_angle"), Value))
     {
         return false;
     }
     OutRiderState.RightElbow = static_cast<float>(Value);
 
-    if (!JsonObject->TryGetNumberField(TEXT("left_knee"), Value))
+    if (JsonObject->TryGetNumberField(TEXT("left_knee_angle"), Value))
     {
-        return false;
+        OutRiderState.LeftKnee = static_cast<float>(Value);
     }
-    OutRiderState.LeftKnee = static_cast<float>(Value);
 
-    if (!JsonObject->TryGetNumberField(TEXT("right_knee"), Value))
+    if (JsonObject->TryGetNumberField(TEXT("right_knee_angle"), Value))
     {
-        return false;
+        OutRiderState.RightKnee = static_cast<float>(Value);
     }
-    OutRiderState.RightKnee = static_cast<float>(Value);
 
-    if (!JsonObject->TryGetNumberField(TEXT("torso_angle"), Value))
+    if (JsonObject->TryGetNumberField(TEXT("left_foot_angle"), Value))
     {
-        return false;
+        OutRiderState.LeftFoot = static_cast<float>(Value);
+	}
+
+    if (JsonObject->TryGetNumberField(TEXT("right_foot_angle"), Value))
+    {
+        OutRiderState.RightFoot = static_cast<float>(Value);
     }
-    OutRiderState.TorsoAngle = static_cast<float>(Value);
+
+    if (JsonObject->TryGetNumberField(TEXT("torso_angle"), Value))
+    {
+        OutRiderState.TorsoAngle = static_cast<float>(Value);
+    }
 
     if (!JsonObject->TryGetNumberField(TEXT("pose_confidence"), Value))
     {

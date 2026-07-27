@@ -14,6 +14,8 @@ struct FRiderState
     float RightElbow = 0.0f;
     float LeftKnee = 0.0f;
     float RightKnee = 0.0f;
+    float LeftFoot = 0.0f;
+    float RightFoot = 0.0f;
     float TorsoAngle = 0.0f;
     float PoseConfidence = 0.0f;
 };
