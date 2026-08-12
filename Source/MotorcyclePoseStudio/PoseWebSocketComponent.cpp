@@ -130,11 +130,14 @@ void UPoseWebSocketComponent::HandleMessage(
         LogTemp,
         Display,
         TEXT(
-            "RiderState: elbows %.1f / %.1f, "
+            "RiderState: head %.1f / %.1f, elbows %.1f / %.1f, "
             "knees %.1f / %.1f, "
             "feet %.1f / %.1f, "
-            "torso %.1f, confidence %.2f"
+            "torso %.1f, confidence %.2f, "
+			"ClutchProgress: %.2f"
         ),
+        RiderState.HeadRoll,
+        RiderState.HeadYawRatio,
         RiderState.LeftElbow,
         RiderState.RightElbow,
         RiderState.LeftKnee,
@@ -142,7 +145,8 @@ void UPoseWebSocketComponent::HandleMessage(
         RiderState.LeftFoot,
 		RiderState.RightFoot,
         RiderState.TorsoAngle,
-        RiderState.PoseConfidence
+        RiderState.PoseConfidence,
+        RiderState.ClutchProgress
     );
 }
 
@@ -176,6 +180,18 @@ bool UPoseWebSocketComponent::ParseRiderState(
     }
 
     double Value = 0.0;
+    if (!JsonObject->TryGetNumberField(TEXT("head_roll"), Value))
+    {
+        return false;
+	}
+	OutRiderState.HeadRoll = static_cast<float>(Value);
+
+    if (!JsonObject->TryGetNumberField(TEXT("head_yaw_ratio"), Value))
+    {
+        return false;
+    }
+
+    OutRiderState.HeadYawRatio = static_cast<float>(Value);
 
     if (!JsonObject->TryGetNumberField(TEXT("left_elbow_angle"), Value))
     {
@@ -220,5 +236,15 @@ bool UPoseWebSocketComponent::ParseRiderState(
     }
     OutRiderState.PoseConfidence = static_cast<float>(Value);
 
+    if (!JsonObject->TryGetNumberField(
+        TEXT("clutch_progress"),
+        Value))
+    {
+        OutRiderState.ClutchProgress = static_cast<float>(Value);
+    }
+    else
+    {
+        OutRiderState.ClutchProgress = 0.0f;
+    }
     return true;
 }

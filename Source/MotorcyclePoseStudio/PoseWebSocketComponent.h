@@ -9,7 +9,9 @@ USTRUCT()
 struct FRiderState
 {
     GENERATED_BODY()
-
+   
+    float HeadYawRatio = 0.0f;
+	float HeadRoll = 0.0f;
     float LeftElbow = 0.0f;
     float RightElbow = 0.0f;
     float LeftKnee = 0.0f;
@@ -18,6 +20,8 @@ struct FRiderState
     float RightFoot = 0.0f;
     float TorsoAngle = 0.0f;
     float PoseConfidence = 0.0f;
+
+    float ClutchProgress = 0.0f;
 };
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
