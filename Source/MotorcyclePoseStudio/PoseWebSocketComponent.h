@@ -20,8 +20,10 @@ struct FRiderState
     float RightFoot = 0.0f;
     float TorsoAngle = 0.0f;
     float PoseConfidence = 0.0f;
-
+    bool bClutchInFrictionZone = false;
     float ClutchProgress = 0.0f;
+    bool bHasClutchProgress = false;
+    
 };
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))

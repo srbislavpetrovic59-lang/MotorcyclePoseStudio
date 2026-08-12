@@ -125,6 +125,26 @@ void UPoseWebSocketComponent::HandleMessage(
         );
         return;
     }
+    if (RiderState.bHasClutchProgress)
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("ClutchProgress: %.2f, FrictionZone: %s"),
+            RiderState.ClutchProgress,
+            RiderState.bClutchInFrictionZone
+            ? TEXT("true")
+            : TEXT("false")
+        );
+    }
+    else
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("ClutchProgress: INVALID, FrictionZone: false")
+        );
+    }
 
     UE_LOG(
         LogTemp,
@@ -134,7 +154,7 @@ void UPoseWebSocketComponent::HandleMessage(
             "knees %.1f / %.1f, "
             "feet %.1f / %.1f, "
             "torso %.1f, confidence %.2f, "
-			"ClutchProgress: %.2f"
+			"ClutchProgress: %.2f, FrictionZone: %s"
         ),
         RiderState.HeadRoll,
         RiderState.HeadYawRatio,
@@ -146,8 +166,11 @@ void UPoseWebSocketComponent::HandleMessage(
 		RiderState.RightFoot,
         RiderState.TorsoAngle,
         RiderState.PoseConfidence,
-        RiderState.ClutchProgress
+        RiderState.ClutchProgress,
+		RiderState.bClutchInFrictionZone ? TEXT("true")
+        : TEXT("false")
     );
+
 }
 
 void UPoseWebSocketComponent::TickComponent(
@@ -236,15 +259,32 @@ bool UPoseWebSocketComponent::ParseRiderState(
     }
     OutRiderState.PoseConfidence = static_cast<float>(Value);
 
-    if (!JsonObject->TryGetNumberField(
+    if (JsonObject->TryGetNumberField(
         TEXT("clutch_progress"),
         Value))
     {
-        OutRiderState.ClutchProgress = static_cast<float>(Value);
+        OutRiderState.ClutchProgress =
+            static_cast<float>(Value);
+
+        OutRiderState.bHasClutchProgress = true;
     }
     else
     {
         OutRiderState.ClutchProgress = 0.0f;
+        OutRiderState.bHasClutchProgress = false;
     }
+    bool bValue = false;
+
+    if (JsonObject->TryGetBoolField(
+        TEXT("clutch_in_friction_zone"),
+        bValue))
+    {
+        OutRiderState.bClutchInFrictionZone = bValue;
+    }
+    else
+    {
+        OutRiderState.bClutchInFrictionZone = false;
+    }
+   
     return true;
 }
