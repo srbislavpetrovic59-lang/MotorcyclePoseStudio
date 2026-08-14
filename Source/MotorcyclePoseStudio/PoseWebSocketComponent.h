@@ -23,6 +23,9 @@ struct FRiderState
     bool bClutchInFrictionZone = false;
     float ClutchProgress = 0.0f;
     bool bHasClutchProgress = false;
+    float FrontBrakeProgress = 0.0f;
+    bool bHasFrontBrakeProgress = false;
+    bool bFrontBrakeActive = false;
     
 };
 

@@ -145,7 +145,26 @@ void UPoseWebSocketComponent::HandleMessage(
             TEXT("ClutchProgress: INVALID, FrictionZone: false")
         );
     }
-
+    if (RiderState.bHasFrontBrakeProgress)
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("FrontBrakeProgress: %.2f, Active: %s"),
+            RiderState.FrontBrakeProgress,
+            RiderState.bFrontBrakeActive
+            ? TEXT("true")
+            : TEXT("false")
+        );
+    }
+    else
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("FrontBrakeProgress: INVALID, Active: false")
+        );
+    }
     UE_LOG(
         LogTemp,
         Display,
@@ -285,6 +304,32 @@ bool UPoseWebSocketComponent::ParseRiderState(
     {
         OutRiderState.bClutchInFrictionZone = false;
     }
-   
+    if (JsonObject->TryGetNumberField(
+        TEXT("front_brake_progress"),
+        Value))
+    {
+        OutRiderState.FrontBrakeProgress =
+            static_cast<float>(Value);
+
+        OutRiderState.bHasFrontBrakeProgress = true;
+    }
+    else
+    {
+        OutRiderState.FrontBrakeProgress = 0.0f;
+        OutRiderState.bHasFrontBrakeProgress = false;
+    }
+    bool bFrontBrakeValue = false;
+
+    if (JsonObject->TryGetBoolField(
+        TEXT("front_brake_active"),
+        bFrontBrakeValue))
+    {
+        OutRiderState.bFrontBrakeActive =
+            bFrontBrakeValue;
+    }
+    else
+    {
+        OutRiderState.bFrontBrakeActive = false;
+    }
     return true;
 }
