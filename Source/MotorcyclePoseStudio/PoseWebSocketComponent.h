@@ -26,6 +26,7 @@ struct FRiderState
     float FrontBrakeProgress = 0.0f;
     bool bHasFrontBrakeProgress = false;
     bool bFrontBrakeActive = false;
+   
     
 };
 
@@ -33,6 +34,10 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MOTORCYCLEPOSESTUDIO_API UPoseWebSocketComponent : public UActorComponent
 {
     GENERATED_BODY()
+
+private:
+    bool bPreviousFrontBrakeActive = false;
+    bool bHasPreviousFrontBrakeState = false;
 
 public:
     UPoseWebSocketComponent();
@@ -49,7 +54,7 @@ public:
 
 private:
     TSharedPtr<IWebSocket> WebSocket;
-
+   
     void Connect();
 
     void HandleConnected();
@@ -63,5 +68,6 @@ private:
     bool ParseRiderState(
         const FString& Message,
         FRiderState& OutRiderState
-    ) const;
+    ) const; 
+    
 };

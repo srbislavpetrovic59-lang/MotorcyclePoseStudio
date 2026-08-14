@@ -125,6 +125,51 @@ void UPoseWebSocketComponent::HandleMessage(
         );
         return;
     }
+
+    if (ParseRiderState(Message, RiderState))
+    {
+        if (
+            bHasPreviousFrontBrakeState
+            && RiderState.bHasFrontBrakeProgress
+            )
+        {
+            if (
+                !bPreviousFrontBrakeActive
+                && RiderState.bFrontBrakeActive
+                )
+            {
+                UE_LOG(
+                    LogTemp,
+                    Display,
+                    TEXT("Front brake APPLIED")
+                );
+            }
+            else if (
+                bPreviousFrontBrakeActive
+                && !RiderState.bFrontBrakeActive
+                )
+            {
+                UE_LOG(
+                    LogTemp,
+                    Display,
+                    TEXT("Front brake RELEASED")
+                );
+            }
+        }
+
+        if (RiderState.bHasFrontBrakeProgress)
+        {
+            bPreviousFrontBrakeActive =
+                RiderState.bFrontBrakeActive;
+
+            bHasPreviousFrontBrakeState = true;
+        }
+    
+        bPreviousFrontBrakeActive =
+            RiderState.bFrontBrakeActive;
+
+        bHasPreviousFrontBrakeState = true;
+    }
     if (RiderState.bHasClutchProgress)
     {
         UE_LOG(
@@ -331,5 +376,6 @@ bool UPoseWebSocketComponent::ParseRiderState(
     {
         OutRiderState.bFrontBrakeActive = false;
     }
+   
     return true;
 }
