@@ -126,50 +126,52 @@ void UPoseWebSocketComponent::HandleMessage(
         return;
     }
 
-    if (ParseRiderState(Message, RiderState))
+    if (
+        bHasPreviousFrontBrakeState
+        && RiderState.bHasFrontBrakeProgress
+        )
     {
         if (
-            bHasPreviousFrontBrakeState
-            && RiderState.bHasFrontBrakeProgress
+            !bPreviousFrontBrakeActive
+            && RiderState.bFrontBrakeActive
             )
         {
-            if (
-                !bPreviousFrontBrakeActive
-                && RiderState.bFrontBrakeActive
-                )
-            {
-                UE_LOG(
-                    LogTemp,
-                    Display,
-                    TEXT("Front brake APPLIED")
-                );
-            }
-            else if (
-                bPreviousFrontBrakeActive
-                && !RiderState.bFrontBrakeActive
-                )
-            {
-                UE_LOG(
-                    LogTemp,
-                    Display,
-                    TEXT("Front brake RELEASED")
-                );
-            }
-        }
+            UE_LOG(
+                LogTemp,
+                Display,
+                TEXT("Front brake APPLIED")
+            );
 
-        if (RiderState.bHasFrontBrakeProgress)
+            OnFrontBrakeApplied.Broadcast();
+        }
+        else if (
+            bPreviousFrontBrakeActive
+            && !RiderState.bFrontBrakeActive
+            )
         {
-            bPreviousFrontBrakeActive =
-                RiderState.bFrontBrakeActive;
+            UE_LOG(
+                LogTemp,
+                Display,
+                TEXT("Front brake RELEASED")
+            );
 
-            bHasPreviousFrontBrakeState = true;
+            OnFrontBrakeReleased.Broadcast();
         }
-    
+    }
+
+    if (RiderState.bHasFrontBrakeProgress)
+    {
         bPreviousFrontBrakeActive =
             RiderState.bFrontBrakeActive;
 
         bHasPreviousFrontBrakeState = true;
+
+        bFrontBrakeActive =
+            RiderState.bFrontBrakeActive;
     }
+
+
+
     if (RiderState.bHasClutchProgress)
     {
         UE_LOG(

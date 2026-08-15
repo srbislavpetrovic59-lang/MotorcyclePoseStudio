@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "IWebSocket.h"
+#include "Delegates/DelegateCombinations.h"
 #include "PoseWebSocketComponent.generated.h"
 
 USTRUCT()
@@ -30,6 +31,14 @@ struct FRiderState
     
 };
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(
+    FFrontBrakeAppliedSignature
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(
+    FFrontBrakeReleasedSignature
+);
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MOTORCYCLEPOSESTUDIO_API UPoseWebSocketComponent : public UActorComponent
 {
@@ -41,6 +50,20 @@ private:
 
 public:
     UPoseWebSocketComponent();
+
+    UPROPERTY(BlueprintReadOnly, Category = "Pose|Controls")
+    bool bFrontBrakeActive = false;
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FFrontBrakeAppliedSignature OnFrontBrakeApplied;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FFrontBrakeReleasedSignature OnFrontBrakeReleased;
 
 protected:
     virtual void BeginPlay() override;
