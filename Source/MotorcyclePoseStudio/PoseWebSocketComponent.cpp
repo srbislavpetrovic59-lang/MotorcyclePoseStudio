@@ -125,6 +125,48 @@ void UPoseWebSocketComponent::HandleMessage(
         );
         return;
     }
+    
+    if (
+        bHasPreviousClutchState
+        && RiderState.bHasClutchProgress
+        )
+    {
+        if (
+            !bPreviousClutchInFrictionZone
+            && RiderState.bClutchInFrictionZone
+            )
+        {
+            UE_LOG(
+                LogTemp,
+                Display,
+                TEXT("Clutch friction zone ENTERED")
+            );
+
+            OnClutchFrictionZoneEntered.Broadcast();
+        }
+        else if (
+            bPreviousClutchInFrictionZone
+            && !RiderState.bClutchInFrictionZone
+            )
+        {
+            UE_LOG(
+                LogTemp,
+                Display,
+                TEXT("Clutch friction zone EXITED")
+            );
+
+            OnClutchFrictionZoneExited.Broadcast();
+        }
+    }
+
+    if (RiderState.bHasClutchProgress)
+    {
+        bPreviousClutchInFrictionZone =
+            RiderState.bClutchInFrictionZone;
+
+        bHasPreviousClutchState = true;
+    }
+    
     if (
         bHasPreviousThrottleState
         && RiderState.bHasThrottleProgress

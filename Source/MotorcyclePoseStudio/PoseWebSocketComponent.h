@@ -49,6 +49,13 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(
     FFrontBrakeReleasedSignature
 );
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(
+    FClutchFrictionZoneEnteredSignature
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(
+    FClutchFrictionZoneExitedSignature
+);
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MOTORCYCLEPOSESTUDIO_API UPoseWebSocketComponent : public UActorComponent
 {
@@ -59,9 +66,24 @@ private:
     bool bHasPreviousFrontBrakeState = false;
     bool bPreviousThrottleActive = false;
     bool bHasPreviousThrottleState = false;
+    bool bPreviousClutchInFrictionZone = false;
+    bool bHasPreviousClutchState = false;
 
 public:
     UPoseWebSocketComponent();
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FClutchFrictionZoneEnteredSignature
+        OnClutchFrictionZoneEntered;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FClutchFrictionZoneExitedSignature
+        OnClutchFrictionZoneExited;
 
     UPROPERTY(
         BlueprintAssignable,
