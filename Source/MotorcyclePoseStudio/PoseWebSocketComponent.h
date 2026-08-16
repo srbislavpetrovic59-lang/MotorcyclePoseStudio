@@ -34,6 +34,13 @@ struct FRiderState
     
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(
+    FThrottleOpenedSignature
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(
+    FThrottleClosedSignature
+);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(
     FFrontBrakeAppliedSignature
@@ -50,9 +57,23 @@ class MOTORCYCLEPOSESTUDIO_API UPoseWebSocketComponent : public UActorComponent
 private:
     bool bPreviousFrontBrakeActive = false;
     bool bHasPreviousFrontBrakeState = false;
+    bool bPreviousThrottleActive = false;
+    bool bHasPreviousThrottleState = false;
 
 public:
     UPoseWebSocketComponent();
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FThrottleOpenedSignature OnThrottleOpened;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FThrottleClosedSignature OnThrottleClosed;
 
     UPROPERTY(BlueprintReadOnly, Category = "Pose|Controls")
     bool bFrontBrakeActive = false;

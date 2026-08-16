@@ -125,7 +125,46 @@ void UPoseWebSocketComponent::HandleMessage(
         );
         return;
     }
-    
+    if (
+        bHasPreviousThrottleState
+        && RiderState.bHasThrottleProgress
+        )
+    {
+        if (
+            !bPreviousThrottleActive
+            && RiderState.bThrottleActive
+            )
+        {
+            UE_LOG(
+                LogTemp,
+                Display,
+                TEXT("Throttle OPENED")
+            );
+
+            OnThrottleOpened.Broadcast();
+        }
+        else if (
+            bPreviousThrottleActive
+            && !RiderState.bThrottleActive
+            )
+        {
+            UE_LOG(
+                LogTemp,
+                Display,
+                TEXT("Throttle CLOSED")
+            );
+
+            OnThrottleClosed.Broadcast();
+        }
+    }
+
+    if (RiderState.bHasThrottleProgress)
+    {
+        bPreviousThrottleActive =
+            RiderState.bThrottleActive;
+
+        bHasPreviousThrottleState = true;
+    }
     if (
         bHasPreviousFrontBrakeState
         && RiderState.bHasFrontBrakeProgress
