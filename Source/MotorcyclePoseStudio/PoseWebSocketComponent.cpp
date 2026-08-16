@@ -283,7 +283,15 @@ bool UPoseWebSocketComponent::ParseRiderState(
     {
         return false;
     }
+    bool BoolValue = false;
 
+    if (JsonObject->TryGetBoolField(
+        TEXT("throttle_active"),
+        BoolValue
+    ))
+    {
+        OutRiderState.bThrottleActive = BoolValue;
+    }
     double Value = 0.0;
     if (!JsonObject->TryGetNumberField(TEXT("head_roll"), Value))
     {

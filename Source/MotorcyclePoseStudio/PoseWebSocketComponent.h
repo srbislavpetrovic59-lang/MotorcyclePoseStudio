@@ -29,6 +29,7 @@ struct FRiderState
     bool bFrontBrakeActive = false;
     float ThrottleProgress = 0.0f;
     bool bHasThrottleProgress = false;
+    bool bThrottleActive = false;
    
     
 };
