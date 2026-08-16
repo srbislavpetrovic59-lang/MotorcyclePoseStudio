@@ -125,7 +125,7 @@ void UPoseWebSocketComponent::HandleMessage(
         );
         return;
     }
-
+    
     if (
         bHasPreviousFrontBrakeState
         && RiderState.bHasFrontBrakeProgress
@@ -170,7 +170,23 @@ void UPoseWebSocketComponent::HandleMessage(
             RiderState.bFrontBrakeActive;
     }
 
-
+    if (RiderState.bHasThrottleProgress)
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("ThrottleProgress: %.2f"),
+            RiderState.ThrottleProgress
+        );
+    }
+    else
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("ThrottleProgress: INVALID")
+        );
+    }
 
     if (RiderState.bHasClutchProgress)
     {
@@ -378,6 +394,20 @@ bool UPoseWebSocketComponent::ParseRiderState(
     {
         OutRiderState.bFrontBrakeActive = false;
     }
-   
+    if (JsonObject->TryGetNumberField(
+        TEXT("throttle_progress"),
+        Value
+    ))
+    {
+        OutRiderState.ThrottleProgress =
+            static_cast<float>(Value);
+
+        OutRiderState.bHasThrottleProgress = true;
+    }
+    else
+    {
+        OutRiderState.ThrottleProgress = 0.0f;
+        OutRiderState.bHasThrottleProgress = false;
+    }
     return true;
 }
