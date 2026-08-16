@@ -175,8 +175,11 @@ void UPoseWebSocketComponent::HandleMessage(
         UE_LOG(
             LogTemp,
             Display,
-            TEXT("ThrottleProgress: %.2f"),
-            RiderState.ThrottleProgress
+            TEXT("ThrottleProgress: %.2f, Active: %s"),
+            RiderState.ThrottleProgress,
+            RiderState.bThrottleActive
+            ? TEXT("true")
+            : TEXT("false")
         );
     }
     else
