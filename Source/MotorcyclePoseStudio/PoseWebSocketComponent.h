@@ -6,7 +6,7 @@
 #include "Delegates/DelegateCombinations.h"
 #include "PoseWebSocketComponent.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FRiderState
 {
     GENERATED_BODY()
@@ -30,9 +30,23 @@ struct FRiderState
     float ThrottleProgress = 0.0f;
     bool bHasThrottleProgress = false;
     bool bThrottleActive = false;
+    UPROPERTY(BlueprintReadOnly)
+    float RearBrakeProgress = 0.0f;
+    bool bHasRearBrakeProgress = false;
+    UPROPERTY(BlueprintReadOnly)
+    bool bRearBrakeActive = false;
+    
    
     
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(
+    FRearBrakeAppliedSignature
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(
+    FRearBrakeReleasedSignature
+);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(
     FThrottleOpenedSignature
@@ -68,6 +82,8 @@ private:
     bool bHasPreviousThrottleState = false;
     bool bPreviousClutchInFrictionZone = false;
     bool bHasPreviousClutchState = false;
+    bool bPreviousRearBrakeActive = false;
+    bool bHasPreviousRearBrakeState = false;
 
 public:
     UPoseWebSocketComponent();
@@ -110,6 +126,18 @@ public:
         Category = "Pose|Controls"
     )
     FFrontBrakeReleasedSignature OnFrontBrakeReleased;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FRearBrakeAppliedSignature OnRearBrakeApplied;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FRearBrakeReleasedSignature OnRearBrakeReleased;
 
 protected:
     virtual void BeginPlay() override;

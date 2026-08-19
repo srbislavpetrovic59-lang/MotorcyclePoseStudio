@@ -125,7 +125,48 @@ void UPoseWebSocketComponent::HandleMessage(
         );
         return;
     }
-    
+   
+    if (
+        bHasPreviousRearBrakeState
+        && RiderState.bHasRearBrakeProgress
+        )
+    {
+        if (
+            !bPreviousRearBrakeActive
+            && RiderState.bRearBrakeActive
+            )
+        {
+            UE_LOG(
+                LogTemp,
+                Display,
+                TEXT("Rear brake APPLIED")
+            );
+
+            OnRearBrakeApplied.Broadcast();
+        }
+        else if (
+            bPreviousRearBrakeActive
+            && !RiderState.bRearBrakeActive
+            )
+        {
+            UE_LOG(
+                LogTemp,
+                Display,
+                TEXT("Rear brake RELEASED")
+            );
+
+            OnRearBrakeReleased.Broadcast();
+        }
+    }
+
+    if (RiderState.bHasRearBrakeProgress)
+    {
+        bPreviousRearBrakeActive =
+            RiderState.bRearBrakeActive;
+
+        bHasPreviousRearBrakeState = true;
+    }
+
     if (
         bHasPreviousClutchState
         && RiderState.bHasClutchProgress
@@ -368,6 +409,36 @@ bool UPoseWebSocketComponent::ParseRiderState(
         return false;
     }
     bool BoolValue = false;
+    double Value = 0.0;
+    
+    if (JsonObject->TryGetNumberField(
+        TEXT("rear_brake_progress"),
+        Value))
+    {
+        OutRiderState.RearBrakeProgress =
+            static_cast<float>(Value);
+
+        OutRiderState.bHasRearBrakeProgress = true;
+    }
+    else
+    {
+        OutRiderState.RearBrakeProgress = 0.0f;
+        OutRiderState.bHasRearBrakeProgress = false;
+    }
+
+    bool bRearBrakeValue = false;
+
+    if (JsonObject->TryGetBoolField(
+        TEXT("rear_brake_active"),
+        bRearBrakeValue))
+    {
+        OutRiderState.bRearBrakeActive =
+            bRearBrakeValue;
+    }
+    else
+    {
+        OutRiderState.bRearBrakeActive = false;
+    }
 
     if (JsonObject->TryGetBoolField(
         TEXT("throttle_active"),
@@ -376,7 +447,7 @@ bool UPoseWebSocketComponent::ParseRiderState(
     {
         OutRiderState.bThrottleActive = BoolValue;
     }
-    double Value = 0.0;
+   
     if (!JsonObject->TryGetNumberField(TEXT("head_roll"), Value))
     {
         return false;
