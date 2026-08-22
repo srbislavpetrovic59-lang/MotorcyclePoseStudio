@@ -330,7 +330,7 @@ void UPoseWebSocketComponent::HandleMessage(
         UE_LOG(
             LogTemp,
             Display,
-            TEXT("ClutchProgress: INVALID, FrictionZone: false")
+            TEXT("ClutchProgress: INVALID")
         );
     }
     if (RiderState.bHasFrontBrakeProgress)
@@ -350,7 +350,7 @@ void UPoseWebSocketComponent::HandleMessage(
         UE_LOG(
             LogTemp,
             Display,
-            TEXT("FrontBrakeProgress: INVALID, Active: false")
+            TEXT("FrontBrakeProgress: INVALID")
         );
     }
     UE_LOG(
@@ -360,9 +360,8 @@ void UPoseWebSocketComponent::HandleMessage(
             "RiderState: head %.1f / %.1f, elbows %.1f / %.1f, "
             "knees %.1f / %.1f, "
             "feet %.1f / %.1f, "
-            "torso %.1f, confidence %.2f, "
-			"ClutchProgress: %.2f, FrictionZone: %s"
-        ),
+            "torso %.1f, confidence %.2f"
+		),
         RiderState.HeadRoll,
         RiderState.HeadYawRatio,
         RiderState.LeftElbow,
@@ -372,11 +371,8 @@ void UPoseWebSocketComponent::HandleMessage(
         RiderState.LeftFoot,
 		RiderState.RightFoot,
         RiderState.TorsoAngle,
-        RiderState.PoseConfidence,
-        RiderState.ClutchProgress,
-		RiderState.bClutchInFrictionZone ? TEXT("true")
-        : TEXT("false")
-    );
+        RiderState.PoseConfidence
+   );
 
 }
 
