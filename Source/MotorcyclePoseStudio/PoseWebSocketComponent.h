@@ -35,6 +35,8 @@ struct FRiderState
     bool bHasRearBrakeProgress = false;
     UPROPERTY(BlueprintReadOnly)
     bool bRearBrakeActive = false;
+    UPROPERTY(BlueprintReadOnly)
+    FString GearShift;
     
    
     
@@ -46,6 +48,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(
     FRearBrakeReleasedSignature
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(
+FGearShiftUpSignature
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(
+FGearShiftDownSignature
 );
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(
@@ -138,6 +148,18 @@ public:
         Category = "Pose|Controls"
     )
     FRearBrakeReleasedSignature OnRearBrakeReleased;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+        FGearShiftUpSignature OnGearShiftUp;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+        FGearShiftDownSignature OnGearShiftDown;
 
 protected:
     virtual void BeginPlay() override;

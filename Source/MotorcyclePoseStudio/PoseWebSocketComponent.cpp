@@ -333,6 +333,36 @@ void UPoseWebSocketComponent::HandleMessage(
             TEXT("ClutchProgress: INVALID")
         );
     }
+    if (!RiderState.GearShift.IsEmpty())
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("GearShift: %s"),
+            *RiderState.GearShift
+        );
+
+        if (RiderState.GearShift == TEXT("SHIFT_UP"))
+        {
+            UE_LOG(
+                LogTemp,
+                Display,
+                TEXT("Gear shift UP event")
+            );
+
+            OnGearShiftUp.Broadcast();
+        }
+        else if (RiderState.GearShift == TEXT("SHIFT_DOWN"))
+        {
+            UE_LOG(
+                LogTemp,
+                Display,
+                TEXT("Gear shift DOWN event")
+            );
+
+            OnGearShiftDown.Broadcast();
+        }
+    }
     if (RiderState.bHasFrontBrakeProgress)
     {
         UE_LOG(
@@ -568,5 +598,17 @@ bool UPoseWebSocketComponent::ParseRiderState(
         OutRiderState.ThrottleProgress = 0.0f;
         OutRiderState.bHasThrottleProgress = false;
     }
+
+    FString GearShiftValue;
+
+    if (JsonObject->TryGetStringField(TEXT("gear_shift"), GearShiftValue))
+    {
+        OutRiderState.GearShift = GearShiftValue;
+    }
+    else
+    {
+        OutRiderState.GearShift=TEXT("");
+    }
+
     return true;
 }
