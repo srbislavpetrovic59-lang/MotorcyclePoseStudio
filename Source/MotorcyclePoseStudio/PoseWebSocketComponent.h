@@ -50,6 +50,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(
     FRearBrakeReleasedSignature
 );
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FRearBrakeProgressSignature,
+    float,
+    Progress
+);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(
 FGearShiftUpSignature
 );
@@ -160,6 +166,12 @@ public:
         Category = "Pose|Controls"
     )
     FRearBrakeReleasedSignature OnRearBrakeReleased;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FRearBrakeProgressSignature OnRearBrakeProgress;
 
     UPROPERTY(
         BlueprintAssignable,

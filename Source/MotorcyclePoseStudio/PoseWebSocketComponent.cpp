@@ -161,6 +161,10 @@ void UPoseWebSocketComponent::HandleMessage(
 
     if (RiderState.bHasRearBrakeProgress)
     {
+        OnRearBrakeProgress.Broadcast(
+            RiderState.RearBrakeProgress
+        );
+        
         bPreviousRearBrakeActive =
             RiderState.bRearBrakeActive;
 
