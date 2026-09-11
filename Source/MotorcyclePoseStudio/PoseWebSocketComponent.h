@@ -66,6 +66,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(
     FThrottleClosedSignature
 );
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+FThrottleProgressSignature,
+float,
+Progress
+);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(
     FFrontBrakeAppliedSignature
 );
@@ -122,6 +128,12 @@ public:
         Category = "Pose|Controls"
     )
     FThrottleClosedSignature OnThrottleClosed;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+        FThrottleProgressSignature OnThrottleProgress;
 
     UPROPERTY(BlueprintReadOnly, Category = "Pose|Controls")
     bool bFrontBrakeActive = false;

@@ -243,6 +243,11 @@ void UPoseWebSocketComponent::HandleMessage(
 
     if (RiderState.bHasThrottleProgress)
     {
+               
+        OnThrottleProgress.Broadcast(
+            RiderState.ThrottleProgress
+        );
+
         bPreviousThrottleActive =
             RiderState.bThrottleActive;
 
