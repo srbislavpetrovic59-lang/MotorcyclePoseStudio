@@ -37,6 +37,8 @@ struct FRiderState
     bool bRearBrakeActive = false;
     UPROPERTY(BlueprintReadOnly)
     FString GearShift;
+    UPROPERTY(BlueprintReadOnly)
+    FString RidingPhase;
     
    
     
@@ -92,6 +94,14 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(
     FClutchFrictionZoneExitedSignature
 );
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FRidingPhaseSignature,
+    const FString&,
+    Phase
+);
+
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MOTORCYCLEPOSESTUDIO_API UPoseWebSocketComponent : public UActorComponent
 {
@@ -106,6 +116,7 @@ private:
     bool bHasPreviousClutchState = false;
     bool bPreviousRearBrakeActive = false;
     bool bHasPreviousRearBrakeState = false;
+    FString PreviousRidingPhase;
 
 public:
     UPoseWebSocketComponent();
@@ -184,6 +195,13 @@ public:
         Category = "Pose|Controls"
     )
         FGearShiftDownSignature OnGearShiftDown;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|State"
+    )
+    
+        FRidingPhaseSignature OnRidingPhase;
 
 protected:
     virtual void BeginPlay() override;

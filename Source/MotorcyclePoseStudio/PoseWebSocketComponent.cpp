@@ -125,7 +125,24 @@ void UPoseWebSocketComponent::HandleMessage(
         );
         return;
     }
-   
+    if (RiderState.RidingPhase != PreviousRidingPhase)
+    {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("RidingPhase changed: %s -> %s"),
+            *PreviousRidingPhase,
+            *RiderState.RidingPhase
+        );
+
+        OnRidingPhase.Broadcast(
+            RiderState.RidingPhase
+        );
+
+        PreviousRidingPhase =
+            RiderState.RidingPhase;
+    }
+
     if (
         bHasPreviousRearBrakeState
         && RiderState.bHasRearBrakeProgress
@@ -617,6 +634,21 @@ bool UPoseWebSocketComponent::ParseRiderState(
     else
     {
         OutRiderState.GearShift=TEXT("");
+    }
+
+    FString RidingPhaseValue;
+
+    if (JsonObject->TryGetStringField(
+        TEXT("riding_phase"),
+        RidingPhaseValue))
+    {
+        OutRiderState.RidingPhase =
+            RidingPhaseValue;
+    }
+    else
+    {
+        OutRiderState.RidingPhase =
+            TEXT("IDLE");
     }
 
     return true;
