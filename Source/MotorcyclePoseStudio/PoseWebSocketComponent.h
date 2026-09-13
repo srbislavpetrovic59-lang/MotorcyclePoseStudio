@@ -53,6 +53,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(
 );
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FFrontBrakeProgressSignature,
+    float,
+    Progress
+);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
     FRearBrakeProgressSignature,
     float,
     Progress
@@ -165,6 +171,12 @@ public:
         Category = "Pose|Controls"
     )
     FFrontBrakeReleasedSignature OnFrontBrakeReleased;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FFrontBrakeProgressSignature OnFrontBrakeProgress;
 
     UPROPERTY(
         BlueprintAssignable,
