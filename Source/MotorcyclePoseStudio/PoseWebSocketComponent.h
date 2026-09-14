@@ -86,6 +86,12 @@ float,
 Progress
 );
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FClutchProgressSignature,
+    float,
+    Progress
+);
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(
     FFrontBrakeAppliedSignature
 );
@@ -156,7 +162,13 @@ public:
         BlueprintAssignable,
         Category = "Pose|Controls"
     )
-        FThrottleProgressSignature OnThrottleProgress;
+    FThrottleProgressSignature OnThrottleProgress;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|Controls"
+    )
+    FClutchProgressSignature OnClutchProgress;
 
     UPROPERTY(BlueprintReadOnly, Category = "Pose|Controls")
     bool bFrontBrakeActive = false;

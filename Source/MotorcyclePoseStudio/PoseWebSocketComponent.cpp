@@ -186,6 +186,13 @@ void UPoseWebSocketComponent::HandleMessage(
 
     if (RiderState.bHasRearBrakeProgress)
     {
+        UE_LOG(
+            LogTemp,
+            Display,
+            TEXT("RearBrakeProgress: %.2f"),
+            RiderState.RearBrakeProgress
+        );
+
         OnRearBrakeProgress.Broadcast(
             RiderState.RearBrakeProgress
         );
@@ -353,6 +360,10 @@ void UPoseWebSocketComponent::HandleMessage(
 
     if (RiderState.bHasClutchProgress)
     {
+        OnClutchProgress.Broadcast(
+            RiderState.ClutchProgress
+        );
+
         UE_LOG(
             LogTemp,
             Display,
