@@ -125,6 +125,9 @@ void UPoseWebSocketComponent::HandleMessage(
         );
         return;
     }
+
+    OnRiderStateUpdated.Broadcast(RiderState);
+
     if (RiderState.RidingPhase != PreviousRidingPhase)
     {
         UE_LOG(
@@ -571,6 +574,11 @@ bool UPoseWebSocketComponent::ParseRiderState(
     if (JsonObject->TryGetNumberField(TEXT("torso_angle"), Value))
     {
         OutRiderState.TorsoAngle = static_cast<float>(Value);
+    }
+
+    if (JsonObject->TryGetNumberField(TEXT("lean_angle"), Value))
+    {
+        OutRiderState.LeanAngle = static_cast<float>(Value);
     }
 
     if (!JsonObject->TryGetNumberField(TEXT("pose_confidence"), Value))

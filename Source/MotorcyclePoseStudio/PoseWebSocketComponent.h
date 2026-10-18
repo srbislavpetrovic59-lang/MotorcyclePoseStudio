@@ -20,6 +20,10 @@ struct FRiderState
     float LeftFoot = 0.0f;
     float RightFoot = 0.0f;
     float TorsoAngle = 0.0f;
+
+    UPROPERTY(BlueprintReadOnly)
+    float LeanAngle = 0.0f;
+    
     float PoseConfidence = 0.0f;
     bool bClutchInFrictionZone = false;
     float ClutchProgress = 0.0f;
@@ -39,6 +43,7 @@ struct FRiderState
     FString GearShift;
     UPROPERTY(BlueprintReadOnly)
     FString RidingPhase;
+   
     
    
     
@@ -113,6 +118,11 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
     Phase
 );
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(
+    FOnRiderStateUpdated,
+    FRiderState,
+    RiderState
+);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MOTORCYCLEPOSESTUDIO_API UPoseWebSocketComponent : public UActorComponent
@@ -220,12 +230,19 @@ public:
     )
         FGearShiftDownSignature OnGearShiftDown;
 
+    
+    
     UPROPERTY(
         BlueprintAssignable,
         Category = "Pose|State"
     )
-    
-        FRidingPhaseSignature OnRidingPhase;
+        FOnRiderStateUpdated OnRiderStateUpdated;
+
+    UPROPERTY(
+        BlueprintAssignable,
+        Category = "Pose|State"
+    )
+    FRidingPhaseSignature OnRidingPhase;
 
 protected:
     virtual void BeginPlay() override;
