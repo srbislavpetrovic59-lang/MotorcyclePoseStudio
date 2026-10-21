@@ -23,6 +23,9 @@ struct FRiderState
 
     UPROPERTY(BlueprintReadOnly)
     float LeanAngle = 0.0f;
+
+    UPROPERTY(BlueprintReadOnly)
+    float HandlebarSteering = 0.0f;
     
     float PoseConfidence = 0.0f;
     bool bClutchInFrictionZone = false;

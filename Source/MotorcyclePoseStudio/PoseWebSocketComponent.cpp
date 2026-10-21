@@ -125,6 +125,12 @@ void UPoseWebSocketComponent::HandleMessage(
         );
         return;
     }
+    UE_LOG(
+        LogTemp,
+        Display,
+        TEXT("Handlebar steering: %+.3f"),
+        RiderState.HandlebarSteering
+    );
 
     OnRiderStateUpdated.Broadcast(RiderState);
 
@@ -579,6 +585,15 @@ bool UPoseWebSocketComponent::ParseRiderState(
     if (JsonObject->TryGetNumberField(TEXT("lean_angle"), Value))
     {
         OutRiderState.LeanAngle = static_cast<float>(Value);
+    }
+
+    if (JsonObject->TryGetNumberField(TEXT("handlebar_steering"), Value))
+    {
+        OutRiderState.HandlebarSteering = static_cast<float>(Value);
+    }
+    else
+    {
+        OutRiderState.HandlebarSteering = 0.0f;
     }
 
     if (!JsonObject->TryGetNumberField(TEXT("pose_confidence"), Value))
