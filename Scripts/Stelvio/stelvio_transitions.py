@@ -96,3 +96,39 @@ def load_s282_s285_path():
         points = data["path"].copy()
 
     return points
+
+def load_p411_p415_spline():
+    from pathlib import Path
+    import numpy as np
+    from scipy.interpolate import BSpline
+
+    filename = (
+        Path(__file__).parent
+        / "stelvio_hairpin_411_415.npz"
+    )
+
+    with np.load(filename) as data:
+        knots = data["knots"].copy()
+        control = data["control"].copy()
+        degree = int(data["degree"])
+
+    return BSpline(
+        knots,
+        control,
+        degree
+    )
+
+
+def load_p411_p415_reconstructed_path():
+    from pathlib import Path
+    import numpy as np
+
+    filename = (
+        Path(__file__).parent
+        / "stelvio_hairpin_411_415_reconstructed.npz"
+    )
+
+    with np.load(filename) as data:
+        points = data["points"].copy()
+
+    return points
