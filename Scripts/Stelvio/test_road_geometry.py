@@ -203,4 +203,258 @@ def test_p411_reconstructed_exit_to_gpx():
     # Izlazimo na pravac sa nultom zakrivljenoscu.
     assert abs(kappa[-1]) < 1e-10
 
+def test_stelvio_csv_matches_generated_road():
+    from generate_stelvio_road import generate_stelvio_road
+    from pathlib import Path
+
+    filename = (
+        Path(__file__).parent
+        / "stelvio_centerline.csv"
+    )
+
+    exported = np.loadtxt(
+        filename,
+        delimiter=",",
+        skiprows=1,
+    )
+
+    generated = generate_stelvio_road()
+
+    assert exported.shape == generated.shape
+
+    assert np.allclose(
+        exported,
+        generated,
+        atol=1e-8,
+        rtol=0,
+    )
+
+def test_stelvio_unreal_csv_conversion():
+    from pathlib import Path
+
+    folder = Path(__file__).parent
+
+    meters = np.loadtxt(
+        folder / "stelvio_centerline.csv",
+        delimiter=",",
+        skiprows=1,
+    )
+
+    centimeters = np.loadtxt(
+        folder / "stelvio_centerline_ue.csv",
+        delimiter=",",
+        skiprows=1,
+    )
+
+    assert meters.shape == centimeters.shape
+    assert len(meters) == 46249
+
+    assert np.allclose(
+        centimeters,
+        meters * 100.0,
+        atol=1e-5,
+        rtol=0,
+    )
+
+
+def test_stelvio_arc_length_position():
+    from arc_length_path import ArcLengthPath
+    from generate_stelvio_road import generate_stelvio_road
+
+    road = generate_stelvio_road()
+    path = ArcLengthPath(road)
+
+    # Ukupna duzina trase.
+    assert np.isclose(
+        path.length,
+        24533.282208852,
+        atol=1e-5,
+    )
+
+    # Pocetak i kraj trase.
+    assert np.allclose(path.point_at(0), road[0])
+    assert np.allclose(
+        path.point_at(path.length),
+        road[-1],
+    )
+
+    # Polozaj motocikla na 12.500 m.
+    position = path.point_at(12500.0)
+    heading = path.heading_at(12500.0)
+
+    assert position.shape == (2,)
+    assert np.all(np.isfinite(position))
+    assert np.isfinite(heading)
+
+    print()
+    print(f"Polozaj na 12500 m: {position}")
+    print(f"Pravac motocikla: {heading:.6f} deg")
+
+
+def test_stelvio_arc_length_unreal_units():
+    from arc_length_path import ArcLengthPath
+    from generate_stelvio_road import generate_stelvio_road
+
+    road_m = generate_stelvio_road()
+    road_cm = road_m * 100.0
+
+    path_m = ArcLengthPath(road_m)
+    path_cm = ArcLengthPath(road_cm)
+
+    distance_m = 12500.0
+
+    position_m = path_m.point_at(distance_m)
+    position_cm = path_cm.point_at(distance_m * 100.0)
+
+    heading_m = path_m.heading_at(distance_m)
+    heading_cm = path_cm.heading_at(distance_m * 100.0)
+
+    assert np.allclose(
+        position_cm,
+        position_m * 100.0,
+        atol=1e-5,
+        rtol=0,
+    )
+
+    assert np.isclose(
+        heading_cm,
+        heading_m,
+        atol=1e-5,
+    )
+
+    print()
+    print(f"UE pozicija: {position_cm}")
+    print(f"UE pravac: {heading_cm:.6f} deg")
+
+def test_motorcycle_pose_at():
+    from arc_length_path import ArcLengthPath
+
+    from generate_stelvio_road import (
+        generate_stelvio_road,
+        motorcycle_pose_at,
+    )
+
+    road = generate_stelvio_road()
+    path = ArcLengthPath(road * 100.0)
+
+    pose = motorcycle_pose_at(path, 12500.0)
+
+    assert set(pose) == {
+        "x_cm",
+        "y_cm",
+        "heading_deg",
+    }
+
+    assert np.isclose(
+        pose["x_cm"],
+        -657565.28516364,
+        atol=1e-4,
+    )
+
+    assert np.isclose(
+        pose["y_cm"],
+        -851719.67546342,
+        atol=1e-4,
+    )
+
+    assert np.isclose(
+        pose["heading_deg"],
+        -50.073837,
+        atol=1e-5,
+    )
+
+    # Rastojanje van trase mora biti odbijeno.
+    import pytest
+
+    with pytest.raises(ValueError):
+        motorcycle_pose_at(path, -1.0)
+
+    with pytest.raises(ValueError):
+        motorcycle_pose_at(
+            path,
+            path.length / 100.0 + 1.0,
+        )
+
+def test_generate_motorcycle_poses():
+    import pytest
+
+    from generate_stelvio_road import (
+        generate_stelvio_road,
+        generate_motorcycle_poses,
+    )
+
+    road = generate_stelvio_road()
+    poses = generate_motorcycle_poses(road)
+
+    # Svaki zapis: distance_m, x_cm, y_cm, heading_deg
+    assert poses.shape == (4908, 4)
+
+    # Prvi polozaj.
+    assert np.isclose(poses[0, 0], 0.0)
+    assert np.allclose(poses[0, 1:3], road[0] * 100.0)
+
+    # Poslednji polozaj.
+    assert np.allclose(
+        poses[-1, 1:3],
+        road[-1] * 100.0,
+        atol=1e-5,
+    )
+
+    # Rastojanja moraju strogo rasti.
+    steps = np.diff(poses[:, 0])
+
+    assert np.all(steps > 0)
+    assert np.all(steps <= 5.000001)
+
+    # Sve vrednosti moraju biti konacne.
+    assert np.all(np.isfinite(poses))
+
+    # Neispravan korak mora biti odbijen.
+    with pytest.raises(ValueError):
+        generate_motorcycle_poses(road, step_m=0)
+
+
+def test_motorcycle_poses_csv_export():
+    from pathlib import Path
+
+    from generate_stelvio_road import (
+        generate_stelvio_road,
+        generate_motorcycle_poses,
+    )
+
+    filename = (
+        Path(__file__).parent
+        / "stelvio_motorcycle_poses_ue.csv"
+    )
+
+    exported = np.loadtxt(
+        filename,
+        delimiter=",",
+        skiprows=1,
+    )
+
+    expected = generate_motorcycle_poses(
+        generate_stelvio_road()
+    )
+
+    assert exported.shape == (4908, 4)
+
+    assert np.allclose(
+        exported,
+        expected,
+        atol=1e-8,
+        rtol=0,
+    )
+
+    assert np.isclose(
+        exported[0, 0],
+        0.0,
+    )
+
+    assert np.isclose(
+        exported[-1, 0],
+        24533.282208852,
+        atol=1e-5,
+    )
+
  
